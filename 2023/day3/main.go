@@ -14,10 +14,11 @@ type PartNumber struct {
 }
 
 func findNumbers(str string) []PartNumber {
-	result := []PartNumber{}
-	part := PartNumber{-1, -1, 0}
 
 	// Custom made super janky algorithm to find all numbers in a line
+
+	result := []PartNumber{}
+	part := PartNumber{-1, -1, 0}
 
 	for indexValue, value := range strings.Split(str, "") {
 		if i, err := strconv.Atoi(value); err == nil {
@@ -28,7 +29,6 @@ func findNumbers(str string) []PartNumber {
 			if indexValue == len(str)-1 {
 				part.endIndex = indexValue
 				result = append(result, part)
-				part = PartNumber{-1, -1, 0}
 			}
 		} else {
 			if part.startIndex != -1 {
@@ -57,24 +57,18 @@ func isPartNumber(part PartNumber, line, previousLine, nextLine string) bool {
 		return true
 	}
 	for i := part.startIndex - 1; i <= part.endIndex+1; i++ {
-		if i >= 0 && i <= len(previousLine)-1 {
-			if isValidSymbol(previousLine[i]) {
-				return true
-			}
+		if i >= 0 && i <= len(previousLine)-1 && isValidSymbol(previousLine[i]) {
+			return true
 		}
-	}
-	for i := part.startIndex - 1; i <= part.endIndex+1; i++ {
-		if i >= 0 && i <= len(nextLine)-1 {
-			if isValidSymbol(nextLine[i]) {
-				return true
-			}
+		if i >= 0 && i <= len(nextLine)-1 && isValidSymbol(nextLine[i]) {
+			return true
 		}
 	}
 
 	return false
 }
 
-func isGear(parts []PartNumber, index int) []int {
+func isGear(index int, parts []PartNumber) []int {
 
 	// Check if the asterisk is touching any number
 
@@ -135,9 +129,9 @@ func solvePart2(input string) int {
 		cNum := findNumbers(line)
 		nNum := findNumbers(nextLine)
 		parts := append(append(pNum, cNum...), nNum...)
-		for _, v := range asterisks {
+		for _, asteriskIndex := range asterisks {
 			// Check if the asterisk is touching two numbers
-			gears := isGear(parts, v)
+			gears := isGear(asteriskIndex, parts)
 			if len(gears) == 2 {
 				sum += gears[0] * gears[1]
 			}
