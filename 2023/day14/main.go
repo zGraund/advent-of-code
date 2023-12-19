@@ -31,11 +31,11 @@ func createKey(m map[Coord]string, row, col int) string {
 	return result
 }
 
-func cycle(c map[Coord]string, len int) int {
+func cycle(c map[Coord]string, len int) {
 
 	/*
 		Make a full north -> west -> south -> east
-		cycle and then calculate the load
+		cycle
 	*/
 
 	for _, dir := range [4]Coord{{-1, 0}, {0, -1}, {1, 0}, {0, 1}} {
@@ -54,13 +54,21 @@ func cycle(c map[Coord]string, len int) int {
 			}
 		}
 	}
+}
+
+func calculateLoad(m map[string]int, i, row, col int) int {
 	sum := 0
-	for k, v := range c {
-		if v == "O" {
-			sum += len - k.row
+	for k, v := range m {
+		if v == i {
+			for ind, char := range k {
+				if char == 'O' {
+					sum += row - (ind / col)
+				}
+			}
+			return sum
 		}
 	}
-	return sum
+	return 0
 }
 
 func solvePart1(coords map[Coord]string, len int) int {
@@ -98,22 +106,21 @@ func solvePart2(coords map[Coord]string, col, row int) int {
 
 	/*
 		Start a loop and keep track of the seen stone combinations
-		in the "cache" and store an array with all the previous
-		calculated loads, when an item already exist in the map
+		in the "cache", when an item already exist in the map
 		a cycle is discovered, with the cycle length we can then
-		calculate where the 1B th cycle will end up and return
-		the relative load from the "already seen" array
+		calculate where the 1Bth cycle will end up and calculate
+		the load using the key of the relative cache entry
 	*/
 
-	cache, loads := map[string]int{}, []int{}
+	cache := map[string]int{}
 	for i := 1; i <= 1000000000; i++ {
-		sum := cycle(coords, col)
+		cycle(coords, col)
 		key := createKey(coords, col, row)
 		if v, ok := cache[key]; ok {
 			cycleStart, cycleLen := v, i-v
-			return loads[cycleStart+((1000000000-cycleStart)%(-cycleLen)-1)]
+			i := cycleStart + ((1000000000 - cycleStart) % (-cycleLen))
+			return calculateLoad(cache, i, row, col)
 		}
-		loads = append(loads, sum)
 		cache[key] = i
 	}
 	return 0
@@ -123,6 +130,7 @@ func main() {
 	i, _ := os.ReadFile("input.txt")
 	input := strings.Split(string(i), "\n")
 
+	// Make 2 copies so we can modify them in place
 	coordsP1 := map[Coord]string{}
 	coordsP2 := map[Coord]string{}
 	for row, l := range input {
@@ -131,8 +139,8 @@ func main() {
 			coordsP2[Coord{row, col}] = string(c)
 		}
 	}
-	col, row := len(input), len(input[0])
+	row, col := len(input), len(input[0])
 
-	fmt.Println("Part 1:", solvePart1(coordsP1, len(input)))
-	fmt.Println("Part 2:", solvePart2(coordsP2, col, row))
+	fmt.Println("Part 1:", solvePart1(coordsP1, row))
+	fmt.Println("Part 2:", solvePart2(coordsP2, row, col))
 }
