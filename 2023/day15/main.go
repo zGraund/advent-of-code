@@ -9,7 +9,7 @@ import (
 )
 
 /*
-	Very straight forward day, just make a fixed array of 256 boxes,
+	Very straightforward day, just make a fixed array of 256 boxes,
 	parse the input and follow the instructions
 */
 
