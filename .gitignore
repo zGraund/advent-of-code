@@ -1,3 +1,4 @@
-input.txt
-template.go
+input*.txt
+template.*
 *.sh
+target
