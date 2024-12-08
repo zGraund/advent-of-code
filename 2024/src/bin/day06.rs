@@ -26,8 +26,8 @@ fn part1(data: &str) -> usize {
     }
 
     let mut visited: HashMap<[isize; 2], _> = HashMap::new();
-    visited.insert(pos, ());
     loop {
+        visited.insert(pos, ());
         let next_pos = [(pos[0] + DIRS[dir][0]), (pos[1] + DIRS[dir][1])];
 
         // Out of bound
@@ -37,7 +37,6 @@ fn part1(data: &str) -> usize {
 
         if !obstacles.contains_key(&next_pos) {
             pos = next_pos;
-            visited.insert(next_pos, ());
         } else {
             dir = (dir + 1) % DIRS.len();
         }
@@ -96,14 +95,13 @@ fn part2(data: &str) -> usize {
     }
 
     let mut visited: HashMap<[isize; 3], _> = HashMap::new();
-    visited.insert([pos[0], pos[1], dir as isize], ());
-
     let mut tested: HashMap<[isize; 2], _> = HashMap::new();
 
     // This is a mess but it's the fastest bruteforce method that i could find
     let mut res = 0;
     let guard_pos = pos;
     loop {
+        visited.insert([pos[0], pos[1], dir as isize], ());
         let next_pos = [(pos[0] + DIRS[dir][0]), (pos[1] + DIRS[dir][1])];
 
         // Out of bound
@@ -113,6 +111,8 @@ fn part2(data: &str) -> usize {
 
         if !obstacles.contains_key(&next_pos) {
             obstacles.insert(next_pos, ());
+            // If the next pos is free, we haven't tested it yet and the guard loop
+            // when we add an obstacle then we count it
             if !tested.contains_key(&next_pos)
                 && next_pos != guard_pos
                 && is_loop(
@@ -128,7 +128,6 @@ fn part2(data: &str) -> usize {
             obstacles.remove(&next_pos);
             tested.insert(next_pos, ());
             pos = next_pos;
-            visited.insert([next_pos[0], next_pos[1], dir as isize], ());
         } else {
             dir = (dir + 1) % DIRS.len();
         }
