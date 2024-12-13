@@ -1,10 +1,10 @@
-use std::{fs::read_to_string, isize, u64, usize};
+use std::{fs::read_to_string, isize, time::Instant, u64, usize};
 
 fn part1(data: &str) -> u64 {
     let mut disk_map: Vec<isize> = vec![];
     let mut empty = false;
     let mut id = 0;
-    for num in data.chars() {
+    for num in data.trim().chars() {
         let digit = num.to_digit(10).unwrap();
         if !empty {
             disk_map.extend_from_slice(&vec![id; digit as usize]);
@@ -44,62 +44,69 @@ fn part1(data: &str) -> u64 {
 }
 
 fn part2(data: &str) -> isize {
-    // [start, finish, id]
-    let mut empty_spaces: Vec<[isize; 3]> = vec![];
+    // [start, length]
+    let mut empty_spaces: Vec<[isize; 2]> = vec![];
+    // [start, length, id]
     let mut files: Vec<[isize; 3]> = vec![];
 
     let mut empty = false;
     let mut id = 0;
     let mut start = 0;
-    for num in data.chars() {
+    for num in data.trim().chars() {
         let digit = num.to_digit(10).unwrap() as isize;
-        let end = start + digit;
         if !empty {
-            files.push([start, end, id]);
+            files.push([start, digit, id]);
             id += 1;
         } else {
-            empty_spaces.push([start, end, -1]);
+            empty_spaces.push([start, digit]);
         }
         start += digit;
         empty = !empty
     }
 
+    let mut res = 0;
     // Iter in reverse over all files
     for f_ind in (0..files.len()).rev() {
         let file_block = files[f_ind];
-        let file_len = file_block[1] - file_block[0];
+        let file_len = file_block[1];
         // Iter over all spaces
         for e_ind in 0..empty_spaces.len() {
             let empty_block = empty_spaces[e_ind];
-            let empty_len = empty_block[1] - empty_block[0];
+            let empty_len = empty_block[1];
             // If the space is on the right of the file we can
             // break early
             if empty_block[0] >= file_block[0] {
                 break;
             }
-            // If the empty space is equal or bigger than the file
+            // If the empty space is equal or bigger than the file...
             if empty_len >= file_len {
-                // Modify the start and end position of the file
-                files[f_ind] = [empty_block[0], empty_block[0] + file_len, file_block[2]];
-                // Reduce the dimension of the empty space
+                // Modify the start position of the file...
+                files[f_ind][0] = empty_block[0];
+                // Reduce the dimension of the empty space...
                 empty_spaces[e_ind][0] += file_len;
-                // Break the loop since we don't need to add the new space back in the empty_spaces
-                // vec because files can't be moved right
+                empty_spaces[e_ind][1] -= file_len;
+                // Break the loop because the file can only move once and
+                // to the left
                 break;
             }
         }
+        // Calculate file checksum
+        res += (files[f_ind][0]..files[f_ind][0] + file_len)
+            .map(move |i| i * file_block[2])
+            .sum::<isize>()
     }
 
-    // Maybe not the easiest to read, but it's **ELEGANT**
-    return files
-        .iter()
-        .flat_map(|range| (range[0]..range[1]).map(move |i| i * range[2]))
-        .sum::<isize>();
+    res
 }
 
 fn main() {
     let data = read_to_string("rsc/input09.txt").expect("Input file not found!");
 
+    let p1 = Instant::now();
     println!("Part 1 solution: {}", part1(&data));
+    println!(" ∟ Elapsed time: {:.2?}", p1.elapsed());
+
+    let p2 = Instant::now();
     println!("Part 2 solution: {}", part2(&data));
+    println!(" ∟ Elapsed time: {:.2?}", p2.elapsed());
 }
