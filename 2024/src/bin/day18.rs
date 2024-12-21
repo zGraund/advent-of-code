@@ -1,3 +1,4 @@
+use core::panic;
 use std::{
     collections::{HashSet, VecDeque},
     fs::read_to_string,
@@ -56,21 +57,22 @@ fn part1(data: &str) -> usize {
     res
 }
 
-fn part2(data: &str) -> &str {
+fn part2(data: &str) -> String {
     // NOTE: change byte value for corresponding input
     let bytes = 1024;
 
-    let lines: Vec<&str> = data.trim().lines().collect();
-    let mut map: HashSet<[isize; 2]> = lines
-        .iter()
-        .take(bytes)
-        .map(|l| {
-            let c = l.split_once(",").unwrap();
+    let bytes_list: Vec<[isize; 2]> = data
+        .trim()
+        .lines()
+        .map(|b| {
+            let c = b.split_once(",").unwrap();
             [c.1.parse().unwrap(), c.0.parse().unwrap()]
         })
         .collect();
 
-    fn check_path(map: &HashSet<[isize; 2]>) -> (bool, HashSet<[isize; 2]>) {
+    let mut map: HashSet<[isize; 2]> = bytes_list.iter().take(bytes).map(|l| *l).collect();
+
+    fn check_path(map: &HashSet<[isize; 2]>) -> bool {
         let mut visited: HashSet<[isize; 2]> = HashSet::new();
         let mut q: VecDeque<[isize; 2]> = VecDeque::new();
         q.push_front([0, 0]);
@@ -104,28 +106,25 @@ fn part2(data: &str) -> &str {
                 }
             }
         }
-        (found, visited)
+        found
     }
 
-    // Very lazy semi brute force solution, find the shortest path and then check
-    // if the new byte will fall on the path, if it does try to find a new path,
-    // if the new path doesn't exist break.
-    // Visited is not exactly only the path nodes but the code runs in ~20s and it's faster
-    // that implementing Dijkstra
-    let (mut complete, mut visited) = check_path(&map);
-    for b in lines.iter().skip(bytes) {
-        let c = b.split_once(",").unwrap();
-        let nbyte = [c.1.parse().unwrap(), c.0.parse().unwrap()];
-        map.insert(nbyte);
-        if visited.contains(&nbyte) {
-            (complete, visited) = check_path(&map)
-        }
-        if !complete {
-            return b;
+    for b in bytes_list.iter().skip(bytes) {
+        map.insert(*b);
+    }
+
+    // Very lazy semi brute force solution, fill the map and then iter in reverse
+    // (since the right byte is probably lower in the list and if the map is full
+    // the bfs is faster) and check each time if we can reach the end, the code
+    // runs in ~40ms and it's way faster than implementing Dijkstra
+    for b in bytes_list.iter().skip(bytes).rev() {
+        map.remove(b);
+        if check_path(&map) {
+            return format!("{},{}", b[1], b[0]);
         }
     }
 
-    "-,-"
+    panic!("No node found")
 }
 
 fn main() {
