@@ -27,3 +27,5 @@ aoc_2025-*.tar
 
 # LSP
 .lexical
+.expert
+.elixir_ls
