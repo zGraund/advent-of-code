@@ -26,6 +26,44 @@ defmodule Main do
     end)
   end
 
+  def to_int_p2(list) do
+    list
+    |> Enum.map(&(&1 |> Enum.drop(-1) |> Enum.join() |> String.trim() |> String.to_integer()))
+  end
+
+  # Refactored part 2, much easier to read and with a single transpose of the entire input
+  # instead of splitting into group and then trasnposing 2 times 
+  def part2refactored(data) do
+    data
+    |> String.split("\n", trim: true)
+    |> Enum.map(&String.split(&1, "", trim: true))
+    # Transpose input
+    |> Enum.zip_with(&Function.identity/1)
+    # Filter out empty lines and group the rest of the input
+    |> Enum.chunk_while(
+      [],
+      fn line, acc ->
+        if line |> Enum.any?(&(&1 != " ")) do
+          {:cont, [line | acc]}
+        else
+          {:cont, Enum.reverse(acc), []}
+        end
+      end,
+      fn acc -> {:cont, Enum.reverse(acc), []} end
+    )
+    # Grab the operation from the first line and process each group
+    |> Enum.map(fn group ->
+      op = group |> List.first() |> List.last()
+
+      cond do
+        op == "+" -> group |> to_int_p2() |> Enum.sum()
+        op == "*" -> group |> to_int_p2() |> Enum.product()
+        true -> :invalid
+      end
+    end)
+    |> Enum.sum()
+  end
+
   def zip_and_join(nums) do
     nums
     |> Enum.zip_with(&Enum.reverse/1)
@@ -87,3 +125,4 @@ data = File.read!("day06/input.txt")
 
 Main.result(&Main.part1/1, data)
 Main.result(&Main.part2/1, data)
+Main.result(&Main.part2refactored/1, data)
