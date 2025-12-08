@@ -36,7 +36,7 @@ defmodule Main do
   def part2refactored(data) do
     data
     |> String.split("\n", trim: true)
-    |> Enum.map(&String.split(&1, "", trim: true))
+    |> Enum.map(&String.graphemes/1)
     # Transpose input
     |> Enum.zip_with(&Function.identity/1)
     # Filter out empty lines and group the rest of the input
