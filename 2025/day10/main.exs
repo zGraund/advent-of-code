@@ -71,6 +71,19 @@ defmodule Main do
     |> Enum.sum()
   end
 
+  # For part 2, instead of using Z3, I opted for a library-less approach.
+  # The problem can be modeled and solved as a system of integer linear equations:
+  # 1) Apply Gaussian elimination to the coefficient matrix
+  # 2) Identify pivot and free variables
+  # 3) Convert the reduced matrix into equations expressing pivots
+  #    in terms of free variables
+  # 4) Enumerate valid values for the free variables, which is doable
+  #    due to strict constraints:
+  #    a) Integer
+  #    b) ≥ 0
+  #    c) ≤ a maximum value derived from the input
+  # 5) Compute the minimum sum of all variables
+
   def gaussian_elimination(matrix, row_ind \\ 0)
   def gaussian_elimination(matrix, row_ind) when row_ind >= length(matrix), do: matrix
 

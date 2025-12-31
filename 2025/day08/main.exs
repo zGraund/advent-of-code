@@ -76,10 +76,11 @@ defmodule Main do
     |> Enum.product()
   end
 
+  # Very naive and ugly brute force that finishes in ~10s.
+  # Populate the adjacency map one connection at a time and
+  # check whether any connected component reaches the input size.
+  # This could have been easily solved with union-find.
   def part2(connections, len) do
-    # Very naive and ugly bruteforce that finishes in ~10s.
-    # Populate the adjacency map one connection at a time and
-    # check if any graph size is equal to the input length
     {first, second} =
       connections
       |> Enum.reduce_while(Map.new(), fn {first, second}, graphs ->

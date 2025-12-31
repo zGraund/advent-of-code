@@ -6,10 +6,10 @@ defmodule Main do
     IO.puts("  Time: #{time / 1_000}ms")
   end
 
-  # Turns out that in the real input, and ONLY in the real input, the area is either
-  # way bigger than the total area occupied by all the boxes or way to small, no in between
-  # so to solve the only part of the last day we only need to check if the total area below the
-  # tree is bigger than the total area of all of the presents that need to be placed
+  # In the real input (and only in the real input), the area below the tree is either
+  # much larger or much smaller than the total area of all the presents placed side by side.
+  # This means the only thing we need to check in this final challenge is whether the available
+  # area is greater than the total area required by the presents.
   def part1(data) do
     {_, trees} = String.split(data, "\n\n", trim: true) |> Enum.split(-1)
 
@@ -19,17 +19,14 @@ defmodule Main do
     trees
     |> hd()
     |> String.split("\n", trim: true)
-    |> Enum.filter(fn tree ->
+    |> Enum.count(fn line ->
       {area, shapes} =
-        Regex.scan(~r/\d+/, tree)
+        Regex.scan(~r/\d+/, line)
         |> Enum.map(&(hd(&1) |> String.to_integer()))
         |> Enum.split(2)
 
-      max_area = area |> Enum.product()
-      required = shapes |> Enum.sum_by(&(&1 * shapes_area))
-      max_area >= required
+      Enum.product(area) >= Enum.sum(shapes) * shapes_area
     end)
-    |> Enum.count()
   end
 end
 

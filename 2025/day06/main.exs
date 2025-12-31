@@ -32,7 +32,7 @@ defmodule Main do
   end
 
   # Refactored part 2, much easier to read and with a single transpose of the entire input
-  # instead of splitting into group and then trasnposing 2 times 
+  # instead of splitting into group and then transposing 2 times 
   def part2refactored(data) do
     data
     |> String.split("\n", trim: true)
@@ -63,6 +63,8 @@ defmodule Main do
     end)
     |> Enum.sum()
   end
+
+  # ---------- Old first approach that's very ugly and inefficient ----------
 
   def zip_and_join(nums) do
     nums

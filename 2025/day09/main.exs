@@ -69,11 +69,11 @@ defmodule Main do
     end)
   end
 
-  # This approach basically generate an outer border around the original
-  # polygon and then tests if any edges of each possible rectangle intercept
-  # the outer border. If it does the rectangle is not valid and it's discarded
+  # This approach generates an outer border around the original polygon
+  # and checks whether any candidate rectangle has edges that intersect it.
+  # Rectangles that do are considered invalid and discarded.
   #
-  # # = red times
+  # # = red tiles
   # X = green tiles
   # O = outer border
   #
